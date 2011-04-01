@@ -7,11 +7,8 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-import java.util.Map.Entry;
 
 /**
  * Utility to process a data file.
@@ -39,15 +36,11 @@ public class CSVParser {
 		String filename = args[0];
 		CSVParser parser = new CSVParser();
 		parser.processFile(filename);
-		Set<Entry<String, RunningAverage>> averagesSet = parser.getAverages();
-		List<Entry<String, RunningAverage>> averages = new ArrayList<Entry<String, RunningAverage>>(averagesSet);
-		Collections.sort(averages, new Comparator<Entry<String, RunningAverage>>(){
-			public int compare(Entry<String, RunningAverage> entry1,
-					Entry<String, RunningAverage> entry2) {
-				return entry1.getKey().compareTo(entry2.getKey());
-			}});
-		for (Entry<String, RunningAverage> entry : averages) {
-			System.out.println( entry.getKey() + "\t" + entry.getValue().getValue() );
+		HashMap<String,RunningAverage> averagesSet = parser.getAverages();
+		List<String> keys = new ArrayList<String>(averagesSet.keySet());
+		Collections.sort(keys);
+		for (String key : keys) {
+			System.out.println( key + "\t" + averagesSet.get(key).getValue() );
 		}
 	}
 
@@ -81,24 +74,29 @@ public class CSVParser {
 	 */
 	public void processLine(String line) {
 		String[] fields = line.split(",");
-		if (fields.length < 3)
-			System.err.println("Missing fields in line: [" + line + "]");
-		else {
+		if (fields.length >= 3) {
+			// Entries would normally be unique by id and date, but we don't enforce that.
 			String id = fields[0];
-			String date = fields[1];
+			// String date = fields[1];
 			String[] data = Arrays.copyOfRange(fields, 2, fields.length);
+			try {
 			double value = calcValue(data);
 
 			if (! runningAverages.containsKey(id))
 				runningAverages.put(id, new RunningAverage());
 			RunningAverage rAvg = runningAverages.get(id);
 			rAvg.updateAverage(value);
+			}
+			catch (NumberFormatException ex) {
+				// FIXME: should log this
+				// skip this line and go on to next one.
+			}
 		}
 	}
 
 	/**
-	 * 
-	 * @param data
+	 * Calculate the average of an arry of numeric strings. 
+	 * @param data Array of numeric strings.
 	 * @return
 	 */
 	protected double calcValue(String[] data) {
@@ -107,12 +105,11 @@ public class CSVParser {
 			total += Double.valueOf(data[i]);
 		}
 		double value = total / data.length;  // calculate the average of the fields, not their total.
-		// double value = total;
 		return value;
 	}
 
-	public Set<Entry<String,RunningAverage>> getAverages() {
-		return runningAverages.entrySet();
+	public HashMap<String,RunningAverage> getAverages() {
+		return runningAverages;
 	}
 	
 	public double getAverage(String id) {

@@ -73,7 +73,7 @@ public class CSVParserTest {
 		parser.processLine("aaa,2011-03-30,1.7,2.7,3.7,4.7");
 		assertEquals(2.9, parser.getAverage("aaa"), 0.00000001);
 	}
-	
+
 	/**
 	 * Test the Reader interface.
 	 * @throws IOException If it can't read a StringReader (not likely)
@@ -83,6 +83,22 @@ public class CSVParserTest {
 		Reader reader = new StringReader("" +
 			"aaa,2011-03-27,1.1,2.1,3.1,4.1\n" +
 			"aaa,2011-03-28,1.3,2.3,3.3,4.3\n" +
+			"aaa,2011-03-29,1.5,2.5,3.5,4.5\n" +
+			"aaa,2011-03-30,1.7,2.7,3.7,4.7");
+		parser.processReader(reader);
+		assertEquals(2.9, parser.getAverage("aaa"), 0.00000001);
+	}
+
+	/**
+	 * Test that NumberFormatExceptions are handled correctly.
+	 * @throws IOException If it can't read a StringReader (not likely)
+	 */
+	@Test
+	public void testNonNumeric() throws IOException {
+		Reader reader = new StringReader("" +
+			"aaa,2011-03-26,1.1,2.1,3.1,4.1\n" +
+			"aaa,2011-03-27,1.3,2.3,3.3,4.3\n" +
+			"aaa,2011-03-28,1.3,2.3,3.3.4.3\n" +  // typo! period instead of comma
 			"aaa,2011-03-29,1.5,2.5,3.5,4.5\n" +
 			"aaa,2011-03-30,1.7,2.7,3.7,4.7");
 		parser.processReader(reader);
