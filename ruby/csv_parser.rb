@@ -1,20 +1,23 @@
 #!/usr/bin/ruby
 
+# Process a CSV file. Entries are user id, date, and one or more numbers, like so:
+#     foo,2011-04-01,37.5,56.8,73.9
+
 filename = ARGV.shift()
-runningAverages = Hash.new {|hash, key| hash[key] = { 'count' => 0, 'average' => 0 } }
-File.open(filename, 'r') { |io|
-    io.each_line() { |line|
-        id, date, *data = line.chomp.split ','
-        data.map! {|x| x.to_f }                # convert strings to floats
+results = Hash.new {|hash, key| hash[key] = { 'count' => 0, 'average' => 0 } }
+IO.foreach(filename) { |line|
+    id, date, *data = line.chomp.split ','
+    if data.length > 0 then
+        data.map! {|x| x.to_f}                 # convert strings to floats
         value = data.reduce(:+) / data.length  # reduce(:+) sums the array
-        count = runningAverages[id]['count']
-        old_total = (runningAverages[id]['average'] * count)
-        runningAverages[id]['average'] = (old_total + value) / (count + 1)
-        runningAverages[id]['count'] += 1
-    }
+        count = results[id]['count']
+        old_total = results[id]['average'] * count
+        results[id]['average'] = (old_total + value) / (count + 1)
+        results[id]['count'] += 1
+    end
 }
 
-runningAverages.keys.sort.each() { |key|
-    print "%s\t%.15f\n" % [key, runningAverages[key]['average']]
+results.keys.sort.each() { |key|
+    print "%s\t%.15f\n" % [key, results[key]['average']]
 }
 
