@@ -76,15 +76,15 @@ public class CSVParser {
 		String[] fields = line.split(",");
 		if (fields.length >= 3) {
 			// Entries would normally be unique by id and date, but we don't enforce that.
-			String id = fields[0];
+			String client_id = fields[0];
 			// String date = fields[1];
 			String[] data = Arrays.copyOfRange(fields, 2, fields.length);
 			try {
 			double value = calcValue(data);
 
-			if (! runningAverages.containsKey(id))
-				runningAverages.put(id, new RunningAverage());
-			RunningAverage rAvg = runningAverages.get(id);
+			if (! runningAverages.containsKey(client_id))
+				runningAverages.put(client_id, new RunningAverage());
+			RunningAverage rAvg = runningAverages.get(client_id);
 			rAvg.updateAverage(value);
 			}
 			catch (NumberFormatException ex) {
@@ -112,9 +112,9 @@ public class CSVParser {
 		return runningAverages;
 	}
 	
-	public double getAverage(String id) {
+	public double getAverage(String client_id) {
 		double value = 0.0;
-		RunningAverage average = runningAverages.get(id);
+		RunningAverage average = runningAverages.get(client_id);
 		if (average != null)
 			value = average.getValue();
 		return value;

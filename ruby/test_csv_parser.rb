@@ -53,8 +53,8 @@ class TestText < Test::Unit::TestCase
     def test_non_numeric
         parser = CSVParser.new
         parser.process_line "aaa,2011-03-26,1.1,2.1,3.1,4.1"
-        parser.process_line "aaa,2011-03-27,1.3,2.3,3.3,4.3"
-        parser.process_line "aaa,2011-03-28,9999.9,1.3,2.3,3.3.4.3"  # typo! period instead of comma
+        # FIXME: "1.3.9999" is parsed as 1.3; is that really what we want?
+        parser.process_line "aaa,2011-03-27,1.3.9999,2.3,3.3,4.3"  # typo! period instead of comma between 3 and 9
         parser.process_line "aaa,2011-03-29,1.5,2.5,3.5,4.5"
         parser.process_line "aaa,2011-03-30,1.7,2.7,3.7,4.7"
         assert_in_delta(2.9, parser.average("aaa"), 0.000001)
