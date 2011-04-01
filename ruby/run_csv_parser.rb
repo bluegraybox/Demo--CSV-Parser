@@ -7,6 +7,6 @@ parser = CSVParser.new
 parser.process_file filename
 
 parser.averages.keys.sort.each() { |key|
-    print "%s\t%.15f\n" % [key, parser.averages[key]['average']]
+    print "%s\t%.8f\n" % [key, parser.averages[key]['average']]
 }
 

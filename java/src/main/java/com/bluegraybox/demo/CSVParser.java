@@ -40,7 +40,7 @@ public class CSVParser {
 		List<String> keys = new ArrayList<String>(averagesSet.keySet());
 		Collections.sort(keys);
 		for (String key : keys) {
-			System.out.println( key + "\t" + averagesSet.get(key).getValue() );
+			System.out.println( String.format("%s\t%.8f", key, averagesSet.get(key).getValue()));
 		}
 	}
 
