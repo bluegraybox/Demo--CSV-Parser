@@ -13,12 +13,24 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
 
+/**
+ * Utility to process a data file.
+ * The data file contains one entry per row. Each entry has a user id, date, and one or more floating-point numbers, all comma-separated like so:
+ * <pre>
+ * foo,2011-04-01,37.5,56.8,73.9
+ * </pre>
+ * Invoke as:
+ * <pre>
+ * java -cp ../java/target/csv_parser-1.0-SNAPSHOT.jar com.bluegraybox.demo.CSVParser data.csv > data.out
+ * </pre>
+ */
 public class CSVParser {
 
 	private HashMap<String, RunningAverage> runningAverages = new HashMap<String, RunningAverage>();
 
 	/**
-	 * @param args
+	 * Parse an input file, perform a calculation, and print out the results. 
+	 * @param args command-line arguments; should just be filename
 	 * @throws IOException If unable to read from the input file.
 	 */
 	public static void main(String[] args) throws IOException {
@@ -41,15 +53,19 @@ public class CSVParser {
 
 	/**
 	 * Process a file and print out the averages for each ID.
-	 * @param filename
-	 * @throws NumberFormatException
-	 * @throws IOException
+	 * @param filename Path to file to read from.
+	 * @throws IOException If unable to read from the input file.
 	 */
-	public void processFile(String filename) throws NumberFormatException, IOException {
+	public void processFile(String filename) throws IOException {
 		Reader fileReader = new FileReader(filename);
 		processReader(fileReader);
 	}
 
+	/**
+	 * Process a Reader and print out the averages for each ID.
+	 * @param fileReader Reader to read from.
+	 * @throws IOException If unable to read from the input Reader.
+	 */
 	public void processReader(Reader fileReader) throws IOException {
 		BufferedReader reader = new BufferedReader(fileReader);
 		String line = null;
@@ -58,6 +74,11 @@ public class CSVParser {
 		}
 	}
 
+	/**
+	 * Process a single line of the input.
+	 * @param line user id, date, and one or more digits, comma-separated like so:
+	 * "foo,2011-04-01,37.5,56.8,73.9"
+	 */
 	public void processLine(String line) {
 		String[] fields = line.split(",");
 		if (fields.length < 3)
@@ -75,6 +96,11 @@ public class CSVParser {
 		}
 	}
 
+	/**
+	 * 
+	 * @param data
+	 * @return
+	 */
 	protected double calcValue(String[] data) {
 		double total = 0;
 		for (int i = 0; i < data.length; i++) {
